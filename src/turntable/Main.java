@@ -6,9 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Properties;
 
 public class Main extends Application {
@@ -16,13 +14,16 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         Properties properties = new Properties();
-        InputStream inputStream = getClass().getResourceAsStream("/res/config.properties");
-        properties.load(inputStream);
+        File file = new File("config.properties");
+        InputStream inputStream = new FileInputStream(file);
+        Reader reader = new InputStreamReader(inputStream, "UTF-8");
+        properties.load(reader);
 
         String projectName = properties.getProperty("projectName");
         Parent root = FXMLLoader.load(getClass().getResource("main.fxml"));
         primaryStage.setTitle(projectName);
         Scene scene = new Scene(root,600,550);
+        scene.getStylesheets().add("src/turntable/main.css");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
