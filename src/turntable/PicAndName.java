@@ -1,5 +1,6 @@
 package turntable;
 
+import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -24,11 +25,13 @@ public class PicAndName extends VBox {
 
      VBox genPicAndName(Image image,String name,String style){
         Text text = new Text(name);
-        text.setStyle("-fx-alignment: center");
+        text.setStyle("-fx-alignment: center;-fx-font-size: 16;-fx-text-alignment: center;");
+
         text.setTextOrigin(VPos.CENTER);
         text.setTextAlignment(TextAlignment.CENTER);
         ImageView imageView = new ImageView(image);
         VBox vBox = new VBox(imageView,text);
+        vBox.setAlignment(Pos.CENTER);
         vBox.setStyle(style==null?"-fx-padding: 8px":style);
         return vBox;
     }
