@@ -1,3 +1,7 @@
 #pane{
-    -fx-background-image: url("/../res/flag.jpg");
+    -fx-background-color: gold;
+}
+
+.imageView{
+    -fx-padding: 6px;
 }
