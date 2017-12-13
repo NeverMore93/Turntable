@@ -19,6 +19,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -42,88 +43,84 @@ public class Main extends Application {
     private static Image image = null;
     private static String name = null;
     private static Timeline timeline;
+    public static volatile String filePath= null;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        String buttonStyle = "-fx-background-color: cyan;-fx-padding: 20px;-fx-end-margin: 20px;-fx-start-margin: 20px;-fx-max-width: 100;-fx-min-width: 60px;-fx-font-size: 16";
+        String buttonStyle = "-fx-background-color: cyan;-fx-font-size: 16;-fx-alignment: center;-fx-padding: 20px;-fx-min-width: 100%";
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("选择候选人相册");
         dir = directoryChooser.showDialog(null);
+        filePath = dir.getPath();
         total = dir.list().length;
         timeline = new Timeline();
 
 
         for(File file: Objects.requireNonNull(dir.listFiles())){
-            image = new Image(new FileInputStream(file),600,400,true,true);
+            image = new Image(new FileInputStream(file),300,200,true,true);
             name = file.getName().split("\\.")[0];
             images.put(name,image);
             imageList.add(image);
             nameList.add(name);
         }
 
-        Button start = new Button("开始");
-        start.setAlignment(Pos.CENTER);
-        start.setStyle(buttonStyle);
-        Button stop = new Button("结束");
-        stop.setStyle(buttonStyle);
-        stop.setAlignment(Pos.CENTER);
-
         ScrollPane scrollPane = new ScrollPane();
         GridPane rootPane = new GridPane();
         rootPane.setStyle("-fx-background-color: cyan");
         GridPane candidatePane = new GridPane();
         GridPane winningPane = new GridPane();
-//        rootPane.setGridLinesVisible(true);
-//        candidatePane.setGridLinesVisible(true);
-//        winningPane.setGridLinesVisible(true);
         winningPane.setStyle("-fx-background-color: gold");
 
         Image emblem= new Image(new FileInputStream(new File("res/default.jpg")));
+        Image start= new Image(new FileInputStream(new File("res/start.jpg")),300,200,true,true);
+        VBox startVBox = picAndName.genPicAndName(start,"","-fx-padding: 0px");
         winningPane.add(picAndName.genPicAndName(emblem,"","-fx-padding: 24px"),0,0);
-        winningPane.setAlignment(Pos.CENTER);
         winningPane.add(picAndName.genPicAndName(imageList.get(0),nameList.get(0),"-fx-padding: 24px"),0,1);
+        winningPane.add(startVBox,0,2);
 
 
         for(Map.Entry<String, Image> entry :images.entrySet()){
             String key = entry.getKey();
             Image image = entry.getValue();
-            candidatePane.add(picAndName.genPicAndName(image,key),index%4,index/4);
+            candidatePane.add(picAndName.genPicAndName(image,key),index%5,index/5);
             index++;
         }
 
-        KeyFrame keyFrame = new KeyFrame(Duration.millis(500), event -> {
+        KeyFrame keyFrame = new KeyFrame(Duration.millis(10), event -> {
             random =(int)(Math.random() * total);
+            winningPane.getChildren().remove(1);
             winningPane.add(picAndName.genPicAndName(imageList.get(random),nameList.get(random),"-fx-padding: 24px"),0,1,1,1);
         });
-        timeline.setCycleCount(10);
+        timeline.setCycleCount(500);
         timeline.getKeyFrames().add(keyFrame);
-
-        start.setOnMouseClicked(event -> {
-            start.setDisable(true);
-            timeline.play();
-            --winningLen;
-            winningPane.add(picAndName.genPicAndName(images.get(winnings[winningLen]),winnings[winningLen],"-fx-padding: 24px"),0,1);
-            start.setDisable(false);
+        timeline.setOnFinished(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                --winningLen;
+                while(winningPane.getChildren().size()>1){
+                    winningPane.getChildren().remove(1);
+                }
+                winningPane.add(picAndName.genPicAndName(images.get(winnings[winningLen]),winnings[winningLen],"-fx-padding: 24px"),0,1);
+                winningPane.add(startVBox,0,2);
+            }
         });
 
-//        stop.setOnMouseClicked(event -> {
-//            timeline.stop();
-//            start.setDisable(false);
-//            winningPane.add(picAndName.genPicAndName(images.get(winnings[winningLen]),winnings[winningLen],"-fx-padding: 24px"),0,1);
-//        });
+        winningPane.setAlignment(Pos.CENTER);
 
-        VBox vBox = new VBox(start,stop);
-        vBox.setSpacing(20);
-        vBox.setAlignment(Pos.CENTER);
-        winningPane.add(vBox,0,2,1,1);
+        startVBox.setOnMouseClicked(event -> {
+            winningPane.getChildren().remove(2);
+            timeline.play();
+        });
 
+        candidatePane.setStyle("-fx-padding: 5px 20px");
         scrollPane.setContent(candidatePane);
         rootPane.add(scrollPane,0,0);
         rootPane.add(winningPane,1,0);
 
 
         primaryStage.setTitle(projectName);
-        Scene scene = new Scene(rootPane);
+        Scene scene = new Scene(rootPane,1432,800);
+        primaryStage.setResizable(false);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
