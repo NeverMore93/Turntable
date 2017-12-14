@@ -112,14 +112,17 @@ public class Main extends Application {
             timeline.play();
         });
 
-        candidatePane.setStyle("-fx-padding: 5px 20px");
+        candidatePane.setStyle("-fx-padding: 5px 25px");
         scrollPane.setContent(candidatePane);
+//        scrollPane.setFitToHeight(true);
+//        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefWidth(845);
         rootPane.add(scrollPane,0,0);
         rootPane.add(winningPane,1,0);
 
 
         primaryStage.setTitle(projectName);
-        Scene scene = new Scene(rootPane,1432,800);
+        Scene scene = new Scene(rootPane,1167,700);
         primaryStage.setResizable(false);
         primaryStage.setScene(scene);
         primaryStage.show();
